@@ -1,7 +1,7 @@
 "use client";
 import { useSettings } from "@/hooks/useSettings";
 import { API_URLS } from "@/lib/api";
-import { isLoggedIn, setToken, setUser } from "@/lib/auth";
+import { isLoggedIn } from "@/lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -32,14 +32,13 @@ export default function Register() {
       });
       const data = await res.json();
       if (!res.ok) {
-        console.log(data.error);
-        
         setError(data.error || "Registration failed");
         return;
       }
-      setToken(data.token);
-      setUser(data.user);
-      router.push("/dashboard");
+      // setToken(data.token);
+      // setUser(data.user);
+      setError("Registration successful! Please check your email to verify.");
+      // router.push("/login?registered=true");
     } catch {
       setError("Cannot connect to server");
     } finally {
@@ -102,10 +101,19 @@ export default function Register() {
                 PASSWORD
               </label>
               <div className="relative">
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required
-                  placeholder="••••••••" className={`${inputClass} pr-10`} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#334155] hover:text-[#64748B]">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  className={`${inputClass} pr-10`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#334155] hover:text-[#64748B]"
+                >
                   {showPassword ? "🙈" : "👁"}
                 </button>
               </div>
