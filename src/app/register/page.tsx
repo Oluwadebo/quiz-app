@@ -48,7 +48,7 @@ export default function Register() {
             <div>
               <label className="font-mono text-[10px] text-[#3B82F6] tracking-[.2em] block mb-2">FULL NAME</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
-                placeholder="Ogunwe Debo" className={inputClass} />
+                placeholder="Adefemi Sola" className={inputClass} />
             </div>
             <div>
               <label className="font-mono text-[10px] text-[#3B82F6] tracking-[.2em] block mb-2">EMAIL</label>
