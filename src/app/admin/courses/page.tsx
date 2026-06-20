@@ -37,7 +37,19 @@ export default function AdminCourses() {
   const fetchData = async () => {
     setLoading(true);
     const coursesData = await fetch(API_URLS.courses).then((r) => r.json());
-    setCourses(Array.isArray(coursesData) ? coursesData : []);
+    const courseList = Array.isArray(coursesData) ? coursesData : [];
+    setCourses(courseList);
+    const testsMap: Record<string, Test[]> = {};
+    await Promise.all(
+      courseList.map(async (course: Course) => {
+        const res = await fetch(`${API_URLS.courses}/${course._id}`, {
+          headers: authHeaders(),
+        });
+        const data = await res.json();
+        testsMap[course._id] = data.tests || [];
+      }),
+    );
+    setTests(testsMap);
     setLoading(false);
   };
 
@@ -105,6 +117,14 @@ export default function AdminCourses() {
   const deleteCourse = async (id: string) => {
     if (!confirm("Delete this course?")) return;
     await fetch(`${API_URLS.admin}/courses/${id}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+    fetchData();
+  };
+  const deleteTest = async (id: string) => {
+    if (!confirm("Delete this test?")) return;
+    await fetch(`${API_URLS.admin}/tests/${id}`, {
       method: "DELETE",
       headers: authHeaders(),
     });
@@ -248,6 +268,32 @@ export default function AdminCourses() {
                   </button>
                 </div>
               </div>
+
+              {tests[course._id] && tests[course._id].length > 0 && (
+    <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
+      {tests[course._id].map((test, index) => (
+        <div key={test._id} className="flex items-center justify-between px-3 py-2 bg-[#111827]">
+          <div className="flex items-center gap-3">
+            <span className={`font-mono text-[9px] ${levelColors[test.level]}`}>
+              {test.level.toUpperCase()}
+            </span>
+            <p className="text-sm text-[#94A3B8]">{test.title}</p>
+          </div>
+          <div className="flex items-center gap-4 font-mono text-[12px] text-[#94A3B8]">
+            <span>{test.questionCount}-Q</span>
+            <span>{test.timeLimit}-MIN</span>
+            <span>{test.passMark}%</span>
+          </div>
+          <button
+                    onClick={() => deleteTest(test._id)}
+                    className="font-mono text-[9px] px-3 py-1.5 border border-red-400/20 text-red-400/60 hover:text-red-400 tracking-widest"
+                  >
+                    DEL
+                  </button>
+        </div>
+      ))}
+    </div>
+  )}
 
               {showTestForm === course._id && (
                 <form
