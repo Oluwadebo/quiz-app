@@ -3,7 +3,7 @@ const BACKEND_URL =
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1")
     ? "http://localhost:5000/api"
-    : process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api";
+    : process.env.NEXT_PUBLIC_BACKEND_URL || "https://quiz-api-backend-0ewy.onrender.com/api";
 
 export const API_URLS = {
   base: BACKEND_URL,
