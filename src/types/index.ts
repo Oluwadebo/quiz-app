@@ -75,3 +75,22 @@ export interface Settings {
   platformName: string;
   platformDescription: string;
 }
+
+export interface GradedAnswer {
+  questionId: string;
+  questionText: string;
+  selectedAnswer: string;
+  selectedAnswerText: string;
+  correctAnswer: string;
+  correctAnswerText: string;
+  isCorrect: boolean;
+}
+
+export interface SessionData {
+  _id: string;
+  score: number;
+  passed: boolean;
+  answers: GradedAnswer[];
+  testId: { title: string; level: string; passMark: number };
+  courseId: { title: string };
+}

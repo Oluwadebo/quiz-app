@@ -43,6 +43,9 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, [router]);
 
+
+  // console.log(courses);
+
   const handleLogout = () => {
     removeToken();
     router.push("/");
