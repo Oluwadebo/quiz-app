@@ -35,10 +35,7 @@ export default function Register() {
         setError(data.error || "Registration failed");
         return;
       }
-      // setToken(data.token);
-      // setUser(data.user);
       setError("Registration successful! Please check your email to verify.");
-      // router.push("/login?registered=true");
     } catch {
       setError("Cannot connect to server");
     } finally {
