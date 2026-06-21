@@ -10,7 +10,13 @@ export default function Home() {
   const { settings } = useSettings();
 
   useEffect(() => {
-    if (isLoggedIn()) {
+     const params = new URLSearchParams(window.location.search);
+  const isPreview = params.get("preview") === "true";
+    if (!isPreview && isLoggedIn()) {
+    //   const fromAdmin = document.referrer.includes("/admin");
+    //   if (!fromAdmin) {
+    //   router.replace(isAdmin() ? "/admin" : "/dashboard");
+    // }
       router.replace(isAdmin() ? "/admin" : "/dashboard");
     }
   }, [router]);
@@ -32,7 +38,7 @@ export default function Home() {
             className="px-8 py-3 bg-[#3B82F6] text-white font-semibold tracking-wide hover:bg-[#2563EB] transition-colors">
             Get Started
           </Link>
-          <Link href="/login"
+          <Link href="/login?preview=true"
             className="px-8 py-3 border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-all tracking-wide">
             Sign In
           </Link>

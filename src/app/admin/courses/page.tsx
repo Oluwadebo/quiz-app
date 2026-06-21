@@ -16,6 +16,8 @@ export default function AdminCourses() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showTestForm, setShowTestForm] = useState<string | null>(null);
+  const [editCourse, setEditCourse] = useState<Course | null>(null);
+  const [editTest, setEditTest] = useState<Test | null>(null);
   const [courseForm, setCourseForm] = useState({
     title: "",
     description: "",
@@ -109,6 +111,41 @@ export default function AdminCourses() {
       });
     } catch {
       setError("Server error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editCourse) return;
+    setSaving(true);
+    try {
+      await fetch(`${API_URLS.admin}/courses/${editCourse._id}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(editCourse),
+      });
+      setEditCourse(null);
+      fetchData();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateTest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTest) return;
+    console.log("Client-side update payload:", editTest);
+    setSaving(true);
+    try {
+      await fetch(`${API_URLS.admin}/tests/${editTest._id}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(editTest),
+      });
+      setEditTest(null);
+      fetchData();
     } finally {
       setSaving(false);
     }
@@ -261,6 +298,12 @@ export default function AdminCourses() {
                     + TEST
                   </button>
                   <button
+                    onClick={() => setEditCourse(course)}
+                    className="font-mono text-[9px] px-3 py-1.5 border border-white/10 text-[#64748B] hover:text-white tracking-widest"
+                  >
+                    EDIT
+                  </button>
+                  <button
                     onClick={() => deleteCourse(course._id)}
                     className="font-mono text-[9px] px-3 py-1.5 border border-red-400/20 text-red-400/60 hover:text-red-400 tracking-widest"
                   >
@@ -269,31 +312,229 @@ export default function AdminCourses() {
                 </div>
               </div>
 
+              {editCourse?._id === course._id && (
+                <form
+                  onSubmit={updateCourse}
+                  className="bg-[#111827] p-4 mb-3 grid grid-cols-2 gap-3"
+                >
+                  <div>
+                    <label className={labelClass}>TITLE</label>
+                    <input
+                      className={inputClass}
+                      value={editCourse.title}
+                      onChange={(e) =>
+                        setEditCourse((f) =>
+                          f ? { ...f, title: e.target.value } : f,
+                        )
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>TOPIC</label>
+                    <input
+                      className={inputClass}
+                      value={editCourse.topic}
+                      onChange={(e) =>
+                        setEditCourse((f) =>
+                          f ? { ...f, topic: e.target.value } : f,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className={labelClass}>DESCRIPTION</label>
+                    <input
+                      className={inputClass}
+                      value={editCourse.description}
+                      onChange={(e) =>
+                        setEditCourse((f) =>
+                          f ? { ...f, description: e.target.value } : f,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="col-span-2 flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="font-mono text-[10px] px-4 py-2 bg-[#3B82F6] text-white tracking-widest disabled:opacity-50"
+                    >
+                      {saving ? "..." : "SAVE"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditCourse(null)}
+                      className="font-mono text-[10px] px-4 py-2 border border-white/10 text-[#64748B]"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
+                </form>
+              )}
+
               {tests[course._id] && tests[course._id].length > 0 && (
-    <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
-      {tests[course._id].map((test, index) => (
-        <div key={test._id} className="flex items-center justify-between px-3 py-2 bg-[#111827]">
-          <div className="flex items-center gap-3">
-            <span className={`font-mono text-[9px] ${levelColors[test.level]}`}>
-              {test.level.toUpperCase()}
-            </span>
-            <p className="text-sm text-[#94A3B8]">{test.title}</p>
-          </div>
-          <div className="flex items-center gap-4 font-mono text-[12px] text-[#94A3B8]">
-            <span>{test.questionCount}-Q</span>
-            <span>{test.timeLimit}-MIN</span>
-            <span>{test.passMark}%</span>
-          </div>
-          <button
-                    onClick={() => deleteTest(test._id)}
-                    className="font-mono text-[9px] px-3 py-1.5 border border-red-400/20 text-red-400/60 hover:text-red-400 tracking-widest"
-                  >
-                    DEL
-                  </button>
-        </div>
-      ))}
-    </div>
-  )}
+                <div className="border-t border-white/5 pt-3 mt-3 space-y-2">
+                  {tests[course._id].map((test) => (
+                    <div
+                      key={test._id}
+                      className="flex items-center justify-between px-3 py-2 bg-[#111827]"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`font-mono text-[9px] ${levelColors[test.level]}`}
+                        >
+                          {test.level.toUpperCase()}
+                        </span>
+                        <p className="text-sm text-[#94A3B8]">{test.title}</p>
+                      </div>
+                      <div className="flex items-center gap-3 font-mono text-[12px] text-[#94A3B8]">
+                        <span>{test.questionCount}-Q</span>
+                        <span>{test.timeLimit}-MIN</span>
+                        <span>{test.passMark}%</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setEditTest(test)}
+                          className="font-mono text-[9px] px-3 py-1.5 border border-white/10 text-[#64748B] hover:text-white tracking-widest"
+                        >
+                          EDIT
+                        </button>
+                        <button
+                          onClick={() => deleteTest(test._id)}
+                          className="font-mono text-[9px] px-3 py-1.5 border border-red-400/20 text-red-400/60 hover:text-red-400 tracking-widest"
+                        >
+                          DEL
+                        </button>
+                      </div>
+
+                      {editTest?._id === test._id && (
+                        <form
+                          onSubmit={updateTest}
+                          className="bg-[#0D1220] p-4 mt-2 grid grid-cols-3 gap-3"
+                        >
+                          <div>
+                            <label className={labelClass}>TITLE</label>
+                            <input
+                              className={inputClass}
+                              value={editTest.title}
+                              onChange={(e) =>
+                                setEditTest((f) =>
+                                  f ? { ...f, title: e.target.value } : f,
+                                )
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className={labelClass}>LEVEL</label>
+                            <select
+                              className={inputClass}
+                              value={editTest.level}
+                              onChange={(e) =>
+                                setEditTest((f) =>
+                                  f
+                                    ? { ...f, level: e.target.value as any }
+                                    : f,
+                                )
+                              }
+                            >
+                              <option value="beginner">Beginner</option>
+                              <option value="intermediate">Intermediate</option>
+                              <option value="advanced">Advanced</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className={labelClass}>QUESTIONS</label>
+                            <input
+                              type="number"
+                              className={inputClass}
+                              value={editTest.questionCount}
+                              onChange={(e) =>
+                                setEditTest((f) =>
+                                  f
+                                    ? {
+                                        ...f,
+                                        questionCount: Number(e.target.value),
+                                      }
+                                    : f,
+                                )
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className={labelClass}>TIME (MINS)</label>
+                            <input
+                              type="number"
+                              className={inputClass}
+                              value={editTest.timeLimit}
+                              onChange={(e) =>
+                                setEditTest((f) =>
+                                  f
+                                    ? {
+                                        ...f,
+                                        timeLimit: Number(e.target.value),
+                                      }
+                                    : f,
+                                )
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className={labelClass}>PASS MARK %</label>
+                            <input
+                              type="number"
+                              className={inputClass}
+                              value={editTest.passMark}
+                              onChange={(e) =>
+                                setEditTest((f) =>
+                                  f
+                                    ? { ...f, passMark: Number(e.target.value) }
+                                    : f,
+                                )
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className={labelClass}>ATTEMPTS/WEEK</label>
+                            <input
+                              type="number"
+                              className={inputClass}
+                              value={editTest.maxAttemptsPerWeek}
+                              onChange={(e) =>
+                                setEditTest((f) =>
+                                  f
+                                    ? {
+                                        ...f,
+                                        maxAttemptsPerWeek: Number(
+                                          e.target.value,
+                                        ),
+                                      }
+                                    : f,
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-3 flex gap-2">
+                            <button
+                              type="submit"
+                              disabled={saving}
+                              className="font-mono text-[10px] px-4 py-2 bg-[#3B82F6] text-white tracking-widest disabled:opacity-50"
+                            >
+                              {saving ? "..." : "SAVE"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditTest(null)}
+                              className="font-mono text-[10px] px-4 py-2 border border-white/10 text-[#64748B]"
+                            >
+                              CANCEL
+                            </button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {showTestForm === course._id && (
                 <form

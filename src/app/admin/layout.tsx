@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
         <div className="p-3 border-t border-white/5 space-y-1">
-          <Link href="/" target="_blank"
+          <Link href="/?preview=true" target="_blank"
             className="flex items-center gap-3 px-3 py-2.5 font-mono text-[10px] tracking-[.15em] text-[#64748B] hover:text-white transition-colors">
             ↗ VIEW SITE
           </Link>
